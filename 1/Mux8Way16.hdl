@@ -1,0 +1,62 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/1/Mux8Way16.hdl
+/**
+ * 8-way 16-bit multiplexor:
+ * out = a if sel = 000
+ *       b if sel = 001
+ *       c if sel = 010
+ *       d if sel = 011
+ *       e if sel = 100
+ *       f if sel = 101
+ *       g if sel = 110
+ *       h if sel = 111
+ */
+CHIP Mux8Way16 {
+    IN a[16], b[16], c[16], d[16],
+       e[16], f[16], g[16], h[16],
+       sel[3];
+
+    OUT out[16];
+    
+    PARTS:
+    Not(in=sel[0], out=notLSB);
+    Not(in=sel[1], out=notMidSB);
+    Not(in=sel[2], out=notMSB);
+
+    And3Way(a=notMSB,b=notMidSB, c=notLSB, out=shouldAOutput);
+    And16Bit(a=a, b=shouldAOutput, out=aOutput);
+
+    And3Way(a=notMSB, b=notMidSB, c=sel[0], out=shouldBOutput);
+    And16Bit(a=b, b=shouldBOutput, out=bOutput);
+
+    And3Way(a=notMSB,b=sel[1], c=notLSB, out=shouldCOutput);
+    And16Bit(a=c, b=shouldCOutput, out=cOutput);
+
+    And3Way(a=notMSB,b=sel[1], c=sel[0], out=shouldDOutput);
+    And16Bit(a=d, b=shouldDOutput, out=dOutput);
+    
+    And3Way(a=sel[2],b=notMidSB, c=notLSB, out=shouldEOutput);
+    And16Bit(a=e, b=shouldEOutput, out=eOutput);
+
+    And3Way(a=sel[2],b=notMidSB, c=sel[0], out=shouldFOutput);
+    And16Bit(a=f, b=shouldFOutput, out=fOutput);
+
+    And3Way(a=sel[2],b=sel[1], c=notLSB, out=shouldGOutput);
+    And16Bit(a=g, b=shouldGOutput, out=gOutput);
+
+    And3Way(a=sel[2],b=sel[1], c=sel[0], out=shouldHOutput);
+    And16Bit(a=h, b=shouldHOutput, out=hOutput);
+
+    Or16(a=aOutput, b=bOutput, out=aOrB);
+    Or16(a=cOutput, b=dOutput, out=cOrD);
+    Or16(a=eOutput, b=fOutput, out=eOrF);
+    Or16(a=gOutput, b=hOutput, out=gOrH);
+
+    Or16(a=aOrB, b=cOrD, out=abcd);
+    Or16(a=eOrF, b=gOrH, out=efgh);
+    
+
+    Or16(a=abcd, b=efgh, out=out);   
+}
